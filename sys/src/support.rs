@@ -127,6 +127,11 @@ macro_rules! handle {
                 Self::NULL
             }
         }
+        impl std::hash::Hash for $name {
+            fn hash<H>(&self, hasher: &mut H) where H: std::hash::Hasher { 
+                hasher.write_u64(self.into_raw())
+            }
+        }
     };
 }
 

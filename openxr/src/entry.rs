@@ -87,6 +87,40 @@ impl Entry {
         })
     }
 
+    #[cfg(feature = "from_proc_addr")]
+    pub unsafe fn from_proc_addr(
+        get_instance_proc_addr: sys::pfn::GetInstanceProcAddr,
+    ) -> Result<Self> {
+        let get_fn = |name: &[u8]| -> Result<unsafe extern "system" fn()> {
+            unsafe {
+                let mut f = None;
+                cvt((get_instance_proc_addr)(
+                    sys::Instance::NULL,
+                    CStr::from_bytes_with_nul_unchecked(name).as_ptr(),
+                    &mut f,
+                ))?;
+                Ok(f.unwrap())
+            }
+        };
+
+        Ok(Self {
+            inner: Arc::new(Inner {
+                raw: RawEntry {
+                    get_instance_proc_addr,
+                    create_instance: std::mem::transmute(get_fn(b"xrCreateInstance\0")?),
+                    enumerate_instance_extension_properties: std::mem::transmute(get_fn(
+                        b"xrEnumerateInstanceExtensionProperties\0",
+                    )?),
+                    enumerate_api_layer_properties: std::mem::transmute(get_fn(
+                        b"xrEnumerateApiLayerProperties\0",
+                    )?),
+                },
+                #[cfg(feature = "loaded")]
+                _lib_guard: None,
+            }),
+        })
+    }
+
     /// Access the raw function pointers
     #[inline]
     pub fn fp(&self) -> &RawEntry {

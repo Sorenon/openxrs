@@ -17,6 +17,7 @@ maintenance = { status = "experimental" }
 static = ["sys/static", "linked"]
 loaded = ["libloading"]
 linked = ["sys/linked"]
+from_proc_addr = []
 mint = ["sys/mint"]
 default = ["loaded"]
 
