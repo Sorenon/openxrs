@@ -1476,7 +1476,7 @@ impl Parser {
             }
 
             impl ExtensionSet {
-                pub(crate) fn from_properties(properties: &[sys::ExtensionProperties]) -> Self {
+                pub fn from_properties(properties: &[sys::ExtensionProperties]) -> Self {
                     let mut out = Self::default();
                     for ext in properties {
                         match crate::fixed_str_bytes(&ext.extension_name) {
@@ -1491,7 +1491,7 @@ impl Parser {
                     out
                 }
 
-                pub(crate) fn names(&self) -> Vec<Cow<'static, [u8]>> {
+                pub fn names(&self) -> Vec<Cow<'static, [u8]>> {
                     let mut out = Vec::new();
                     #(#ext_set_names)*
                     for name in &self.other {
@@ -1576,7 +1576,7 @@ impl Parser {
             }
 
             #[allow(unused)]
-            pub(crate) mod builder {
+            pub mod builder {
                 use std::{mem, marker::PhantomData, ops::Deref};
 
                 use crate::*;

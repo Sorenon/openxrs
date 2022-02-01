@@ -129,7 +129,7 @@ pub struct ExtensionSet {
     pub other: Vec<String>,
 }
 impl ExtensionSet {
-    pub(crate) fn from_properties(properties: &[sys::ExtensionProperties]) -> Self {
+    pub fn from_properties(properties: &[sys::ExtensionProperties]) -> Self {
         let mut out = Self::default();
         for ext in properties {
             match crate::fixed_str_bytes(&ext.extension_name) {
@@ -398,7 +398,7 @@ impl ExtensionSet {
         }
         out
     }
-    pub(crate) fn names(&self) -> Vec<Cow<'static, [u8]>> {
+    pub fn names(&self) -> Vec<Cow<'static, [u8]>> {
         let mut out = Vec::new();
         {
             if self.epic_view_configuration_fov {
@@ -3416,7 +3416,7 @@ pub mod raw {
     }
 }
 #[allow(unused)]
-pub(crate) mod builder {
+pub mod builder {
     use crate::*;
     use std::{marker::PhantomData, mem, ops::Deref};
     #[derive(Copy, Clone)]
