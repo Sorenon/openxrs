@@ -37,7 +37,7 @@ impl Entry {
                     create_instance: sys::create_instance,
                     enumerate_instance_extension_properties:
                         sys::enumerate_instance_extension_properties,
-                    enumerate_api_layer_properties: sys::enumerate_api_layer_properties,
+                    enumerate_api_layer_properties: Some(sys::enumerate_api_layer_properties),
                 },
                 #[cfg(feature = "loaded")]
                 _lib_guard: None,
@@ -77,9 +77,9 @@ impl Entry {
                         enumerate_instance_extension_properties: *lib
                             .get(b"xrEnumerateInstanceExtensionProperties\0")
                             .map_err(LoadError)?,
-                        enumerate_api_layer_properties: *lib
+                        enumerate_api_layer_properties: Some(*lib
                             .get(b"xrEnumerateApiLayerProperties\0")
-                            .map_err(LoadError)?,
+                            .map_err(LoadError)?),
                     }
                 },
                 _lib_guard: Some(lib),
@@ -113,7 +113,7 @@ impl Entry {
                     )?),
                     enumerate_api_layer_properties: std::mem::transmute(get_fn(
                         b"xrEnumerateApiLayerProperties\0",
-                    )?),
+                    ).ok()),
                 },
                 #[cfg(feature = "loaded")]
                 _lib_guard: None,
@@ -272,7 +272,7 @@ impl Entry {
         unsafe {
             let layers = get_arr_init(
                 sys::ApiLayerProperties::out(ptr::null_mut()),
-                |cap, count, buf| (self.fp().enumerate_api_layer_properties)(cap, count, buf as _),
+                |cap, count, buf| (self.fp().enumerate_api_layer_properties.unwrap())(cap, count, buf as _),
             )?;
             Ok(layers
                 .into_iter()
@@ -300,7 +300,8 @@ pub struct RawEntry {
     pub get_instance_proc_addr: sys::pfn::GetInstanceProcAddr,
     pub create_instance: sys::pfn::CreateInstance,
     pub enumerate_instance_extension_properties: sys::pfn::EnumerateInstanceExtensionProperties,
-    pub enumerate_api_layer_properties: sys::pfn::EnumerateApiLayerProperties,
+    ///When using a layer with the SteamVR runtime xrEnumerateApiLayerProperties may be inaccessible
+    pub enumerate_api_layer_properties: Option<sys::pfn::EnumerateApiLayerProperties>,
 }
 
 /// An error encountered while loading entry points from a dynamic library at run time
