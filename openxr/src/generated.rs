@@ -1723,7 +1723,7 @@ pub mod raw {
     #[derive(Copy, Clone)]
     pub struct Instance {
         pub get_instance_proc_addr: pfn::GetInstanceProcAddr,
-        pub enumerate_api_layer_properties: pfn::EnumerateApiLayerProperties,
+        pub enumerate_api_layer_properties: Option<pfn::EnumerateApiLayerProperties>,
         pub enumerate_instance_extension_properties: pfn::EnumerateInstanceExtensionProperties,
         pub create_instance: pfn::CreateInstance,
         pub destroy_instance: pfn::DestroyInstance,
@@ -1793,7 +1793,7 @@ pub mod raw {
                 enumerate_api_layer_properties: mem::transmute(entry.get_instance_proc_addr(
                     instance,
                     CStr::from_bytes_with_nul_unchecked(b"xrEnumerateApiLayerProperties\0"),
-                )?),
+                ).ok()),
                 enumerate_instance_extension_properties: mem::transmute(
                     entry.get_instance_proc_addr(
                         instance,
