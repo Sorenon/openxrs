@@ -3,7 +3,7 @@ name = "openxr"
 description = "High-level, mostly-safe OpenXR bindings"
 repository = "https://github.com/Ralith/openxrs"
 readme = "../README.md"
-version = "0.15.5"
+version = "0.16.0"
 authors = ["Benjamin Saunders <ben.e.saunders@gmail.com>"]
 categories = ["api-bindings", "rendering"]
 keywords = ["vr"]
@@ -27,14 +27,14 @@ libc = "0.2.50"
 libloading = { version = "0.7", optional = true }
 
 [dev-dependencies]
-ash = { version = "0.35", default-features = false, features = ["loaded"] }
+ash = { version = "0.37", default-features = false, features = ["loaded"] }
 ctrlc = "3.1.5"
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["profileapi"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
-ndk-glue = "0.6"
+ndk-context = "0.1"
 
 [package.metadata.docs.rs]
 features = ["linked", "loaded", "mint"]

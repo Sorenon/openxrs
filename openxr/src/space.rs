@@ -227,7 +227,7 @@ pub struct SpaceLocation {
 
 impl SpaceLocation {
     unsafe fn new(raw: &MaybeUninit<sys::SpaceLocation>) -> Self {
-        // Applications *must* not read invalid parts of a poses, i.e. they may be uninitialized
+        // Applications *must* not read invalid parts of a pose, i.e. they may be uninitialized
         let ptr = raw.as_ptr();
         let flags = *ptr::addr_of!((*ptr).location_flags);
         Self {
@@ -248,22 +248,26 @@ impl SpaceLocation {
 
 #[derive(Copy, Clone, Default, PartialEq)]
 pub struct SpaceVelocity {
-    pub linear_velocity: Option<Vector3f>,
-    pub angular_velocity: Option<Vector3f>,
+    pub velocity_flags: SpaceVelocityFlags,
+    pub linear_velocity: Vector3f,
+    pub angular_velocity: Vector3f,
 }
 
 impl SpaceVelocity {
     unsafe fn new(raw: &MaybeUninit<sys::SpaceVelocity>) -> Self {
-        // Applications *must* not read invalid parts of a poses, i.e. they may be uninitialized
+        // Applications *must* not read invalid velocities, i.e. they may be uninitialized
         let ptr = raw.as_ptr();
         let flags = *ptr::addr_of!((*ptr).velocity_flags);
         Self {
+            velocity_flags: flags,
             linear_velocity: flags
                 .contains(sys::SpaceVelocityFlags::LINEAR_VALID)
-                .then(|| *ptr::addr_of!((*ptr).linear_velocity)),
+                .then(|| *ptr::addr_of!((*ptr).linear_velocity))
+                .unwrap_or_default(),
             angular_velocity: flags
                 .contains(sys::SpaceVelocityFlags::ANGULAR_VALID)
-                .then(|| *ptr::addr_of!((*ptr).angular_velocity)),
+                .then(|| *ptr::addr_of!((*ptr).angular_velocity))
+                .unwrap_or_default(),
         }
     }
 }
