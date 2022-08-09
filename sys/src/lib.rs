@@ -3,6 +3,7 @@ use std::{convert::TryFrom, fmt};
 #[macro_use]
 mod support;
 mod generated;
+pub mod loader_interfaces;
 pub mod platform;
 
 #[cfg(feature = "mint")]
