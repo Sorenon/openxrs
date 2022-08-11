@@ -85,7 +85,6 @@ pub struct XrNegotiateRuntimeRequest {
     pub ty: LoaderInterfaceStructureType,
     pub struct_version: u32,
     pub struct_size: usize,
-    /// CURRENT_LOADER_RUNTIME_VERSION
     pub runtime_interface_version: u32,
     pub runtime_api_version: Version,
     pub get_instance_proc_addr: Option<pfn::GetInstanceProcAddr>,
