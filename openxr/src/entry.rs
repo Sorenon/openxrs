@@ -37,7 +37,7 @@ impl Entry {
                     create_instance: sys::create_instance,
                     enumerate_instance_extension_properties:
                         sys::enumerate_instance_extension_properties,
-                    enumerate_api_layer_properties: sys::enumerate_api_layer_properties,
+                    enumerate_api_layer_properties: Some(sys::enumerate_api_layer_properties),
                 },
                 #[cfg(feature = "loaded")]
                 _lib_guard: None,
@@ -122,11 +122,14 @@ impl Entry {
                             ),
                         )?,
                     ),
-                    enumerate_api_layer_properties: mem::transmute(get_instance_proc_addr_helper(
+                    enumerate_api_layer_properties: match get_instance_proc_addr_helper(
                         get_instance_proc_addr,
                         sys::Instance::NULL,
                         CStr::from_bytes_with_nul_unchecked(b"xrEnumerateApiLayerProperties\0"),
-                    )?),
+                    ) {
+                        Ok(enumerate_api_layer_properties) => mem::transmute(enumerate_api_layer_properties),
+                        Err(_) => None,
+                    },
                 },
                 #[cfg(feature = "loaded")]
                 _lib_guard: None,
@@ -279,7 +282,12 @@ impl Entry {
         unsafe {
             let layers = get_arr_init(
                 sys::ApiLayerProperties::out(ptr::null_mut()),
-                |cap, count, buf| (self.fp().enumerate_api_layer_properties)(cap, count, buf as _),
+                |cap, count, buf| match self.fp().enumerate_api_layer_properties {
+                    Some(enumerate_api_layer_properties) => {
+                        enumerate_api_layer_properties(cap, count, buf as _)
+                    }
+                    None => sys::Result::ERROR_FUNCTION_UNSUPPORTED,
+                },
             )?;
             Ok(layers
                 .into_iter()
@@ -318,7 +326,8 @@ pub struct RawEntry {
     pub get_instance_proc_addr: sys::pfn::GetInstanceProcAddr,
     pub create_instance: sys::pfn::CreateInstance,
     pub enumerate_instance_extension_properties: sys::pfn::EnumerateInstanceExtensionProperties,
-    pub enumerate_api_layer_properties: sys::pfn::EnumerateApiLayerProperties,
+    // xrEnumerateApiLayerProperties cannot be called from layers so it must be optional
+    pub enumerate_api_layer_properties: Option<sys::pfn::EnumerateApiLayerProperties>,
 }
 
 /// An error encountered while loading entry points from a dynamic library at run time
