@@ -1242,14 +1242,25 @@ impl Parser {
             }
             let pfn_ident = xr_command_name(name);
             let field_ident = Ident::new(&pfn_ident.to_string().to_snake_case(), Span::call_site());
-            let field = quote! {
-                pub #field_ident: pfn::#pfn_ident,
-            };
             let c_name = c_name(name);
-            let init = quote! {
-                #field_ident: mem::transmute(entry.get_instance_proc_addr(instance, CStr::from_bytes_with_nul_unchecked(#c_name))?),
-            };
-            (field, init)
+
+            if name == "xrEnumerateInstanceExtensionProperties" {
+                let field = quote! {
+                    pub #field_ident: Option<pfn::#pfn_ident>,
+                };
+                let init = quote! {
+                    #field_ident: mem::transmute(entry.get_instance_proc_addr(instance, CStr::from_bytes_with_nul_unchecked(#c_name)).ok()),
+                };
+                (field, init)
+            } else {
+                let field = quote! {
+                    pub #field_ident: pfn::#pfn_ident,
+                };
+                let init = quote! {
+                    #field_ident: mem::transmute(entry.get_instance_proc_addr(instance, CStr::from_bytes_with_nul_unchecked(#c_name))?),
+                };
+                (field, init)
+            }
         }).unzip::<_, _, Vec<_>, Vec<_>>();
 
         let mut exts = Vec::new();

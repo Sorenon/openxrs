@@ -122,14 +122,14 @@ impl Entry {
                             ),
                         )?,
                     ),
-                    enumerate_api_layer_properties: match get_instance_proc_addr_helper(
-                        get_instance_proc_addr,
-                        sys::Instance::NULL,
-                        CStr::from_bytes_with_nul_unchecked(b"xrEnumerateApiLayerProperties\0"),
-                    ) {
-                        Ok(enumerate_api_layer_properties) => mem::transmute(enumerate_api_layer_properties),
-                        Err(_) => None,
-                    },
+                    enumerate_api_layer_properties: mem::transmute(
+                        get_instance_proc_addr_helper(
+                            get_instance_proc_addr,
+                            sys::Instance::NULL,
+                            CStr::from_bytes_with_nul_unchecked(b"xrEnumerateApiLayerProperties\0"),
+                        )
+                        .ok(),
+                    ),
                 },
                 #[cfg(feature = "loaded")]
                 _lib_guard: None,
@@ -326,7 +326,7 @@ pub struct RawEntry {
     pub get_instance_proc_addr: sys::pfn::GetInstanceProcAddr,
     pub create_instance: sys::pfn::CreateInstance,
     pub enumerate_instance_extension_properties: sys::pfn::EnumerateInstanceExtensionProperties,
-    // xrEnumerateApiLayerProperties cannot be called from layers so it must be optional
+    // xrEnumerateApiLayerProperties cannot be accessed from layers so it has to be optional
     pub enumerate_api_layer_properties: Option<sys::pfn::EnumerateApiLayerProperties>,
 }
 

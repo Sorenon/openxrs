@@ -1833,7 +1833,8 @@ pub mod raw {
     pub struct Instance {
         pub get_instance_proc_addr: pfn::GetInstanceProcAddr,
         pub enumerate_api_layer_properties: pfn::EnumerateApiLayerProperties,
-        pub enumerate_instance_extension_properties: pfn::EnumerateInstanceExtensionProperties,
+        pub enumerate_instance_extension_properties:
+            Option<pfn::EnumerateInstanceExtensionProperties>,
         pub create_instance: pfn::CreateInstance,
         pub destroy_instance: pfn::DestroyInstance,
         pub result_to_string: pfn::ResultToString,
@@ -1904,12 +1905,14 @@ pub mod raw {
                     CStr::from_bytes_with_nul_unchecked(b"xrEnumerateApiLayerProperties\0"),
                 )?),
                 enumerate_instance_extension_properties: mem::transmute(
-                    entry.get_instance_proc_addr(
-                        instance,
-                        CStr::from_bytes_with_nul_unchecked(
-                            b"xrEnumerateInstanceExtensionProperties\0",
-                        ),
-                    )?,
+                    entry
+                        .get_instance_proc_addr(
+                            instance,
+                            CStr::from_bytes_with_nul_unchecked(
+                                b"xrEnumerateInstanceExtensionProperties\0",
+                            ),
+                        )
+                        .ok(),
                 ),
                 create_instance: mem::transmute(entry.get_instance_proc_addr(
                     instance,
