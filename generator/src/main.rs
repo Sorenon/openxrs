@@ -1244,7 +1244,7 @@ impl Parser {
             let field_ident = Ident::new(&pfn_ident.to_string().to_snake_case(), Span::call_site());
             let c_name = c_name(name);
 
-            if name == "xrEnumerateInstanceExtensionProperties" {
+            if name == "xrEnumerateApiLayerProperties" {
                 let field = quote! {
                     pub #field_ident: Option<pfn::#pfn_ident>,
                 };

@@ -16,7 +16,7 @@ pub type FnCreateApiLayerInstance = unsafe extern "system" fn(
 pub const CURRENT_LOADER_API_LAYER_VERSION: u32 = 1;
 
 /// Loader/Runtime Interface versions
-/// 
+///
 ///  1 - First version, introduces negotiation structure and functions
 pub const CURRENT_LOADER_RUNTIME_VERSION: u32 = 1;
 
